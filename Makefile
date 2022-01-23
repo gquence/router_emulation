@@ -10,6 +10,10 @@ EXEPTIONS_LIB_DIR = ./exceptions
 EXEPTIONS_LIB_INC_DIR = $(addprefix $(EXEPTIONS_LIB_DIR)/,$(INC_DIR))
 EXEPTIONS_LIB_NAME = router_exception
 
+PACKETS_LIB_DIR = ./packets
+PACKETS_LIB_INC_DIR = $(addprefix $(PACKETS_LIB_DIR)/,$(INC_DIR))
+PACKETS_LIB_NAME = router_packets
+
 MEMORY_HANDLING_LIB_DIR = ./memory_handling
 MEMORY_HANDLING_LIB_INC_DIR = $(addprefix $(MEMORY_HANDLING_LIB_DIR)/,$(INC_DIR))
 MEMORY_HANDLING_LIB_NAME = looped_queue
@@ -31,21 +35,24 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	make -C $(EXEPTIONS_LIB_DIR) CFLAGS="$(COMMON_CFLAGS)"
+	make -C $(PACKETS_LIB_DIR) CFLAGS="$(COMMON_CFLAGS) -I ../$(EXEPTIONS_LIB_INC_DIR)"
 	make -C $(MEMORY_HANDLING_LIB_DIR) CFLAGS="$(COMMON_CFLAGS)"
-	$(CC) $^ -o $@ -L $(EXEPTIONS_LIB_DIR) -l $(EXEPTIONS_LIB_NAME) -L $(MEMORY_HANDLING_LIB_DIR) -l $(MEMORY_HANDLING_LIB_NAME) 
+	$(CC) $^ -o $@ -L $(EXEPTIONS_LIB_DIR) -l $(EXEPTIONS_LIB_NAME) -L $(MEMORY_HANDLING_LIB_DIR) -l $(MEMORY_HANDLING_LIB_NAME) -L $(PACKETS_LIB_DIR) -l $(PACKETS_LIB_NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	mkdir $(OBJ_DIR) 2< /dev/null || true
-	$(CC) $(FLAGS) -c $< -o $@ -I $(INC_DIR) -I $(EXEPTIONS_LIB_INC_DIR) -I $(MEMORY_HANDLING_LIB_INC_DIR) $(COMMON_CFLAGS)
+	$(CC) $(FLAGS) -c $< -o $@ -I $(INC_DIR) -I $(EXEPTIONS_LIB_INC_DIR) -I $(MEMORY_HANDLING_LIB_INC_DIR) -I $(PACKETS_LIB_INC_DIR) $(COMMON_CFLAGS)
 
 clean:
 	rm -rf  $(OBJ_DIR)
 	make -C $(EXEPTIONS_LIB_DIR) clean
+	make -C $(PACKETS_LIB_DIR) clean
 	make -C $(MEMORY_HANDLING_LIB_DIR) clean
 	
 fclean: clean
 	rm -rf $(NAME)
 	make -C $(EXEPTIONS_LIB_DIR) fclean
+	make -C $(PACKETS_LIB_DIR) fclean
 	make -C $(MEMORY_HANDLING_LIB_DIR) fclean
 
 re: fclean all
